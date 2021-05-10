@@ -226,6 +226,7 @@ class Product extends Model {
 		];
 
 	}
+	
 
 }
 
