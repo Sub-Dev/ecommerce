@@ -1,11 +1,15 @@
 <?php 
 
+
+
 namespace Hcode\Model;
 
 use \Hcode\DB\Sql;
 use \Hcode\Model;
 use \Hcode\Mailer;
 use \Hcode\Model\User;
+
+ini_set('max_execution_time', '300'); //300 seconds = 5 minutes
 
 
 class Cart extends Model {
