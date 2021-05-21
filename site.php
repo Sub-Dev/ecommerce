@@ -561,7 +561,7 @@ $dadosboleto["cidade_uf"] = "São Bernardo do Campo - SP";
 $dadosboleto["cedente"] = "HCODE TREINAMENTOS LTDA - ME";
 
 // NÃO ALTERAR!
-$path = $_SERVER['DOCUMENTO_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "boletophp" . DIRECTORY_SEPARATOR . "include" . DIRECTORY_SEPARATOR;
+$path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "boletophp" . DIRECTORY_SEPARATOR . "include" . DIRECTORY_SEPARATOR;
 
 require_once($path . "funcoes_itau.php"); 
 require_once($path . "layout_itau.php");
