@@ -4,7 +4,7 @@ namespace Hcode\Model;
 
 use \Hcode\DB\Sql;
 use \Hcode\Model;
-
+use \Hcode\Mailer;
 
 class Category extends Model {
 
@@ -13,10 +13,12 @@ class Category extends Model {
 
 		$sql = new Sql();
 
-		return $sql->select("SELECT * FROM tb_categories  ORDER BY descategory");
+		return $sql->select("SELECT * FROM tb_categories ORDER BY descategory");
 
 	}
-	public function save(){
+
+	public function save()
+	{
 
 		$sql = new Sql();
 
@@ -28,17 +30,23 @@ class Category extends Model {
 		$this->setData($results[0]);
 
 		Category::updateFile();
+
 	}
-public function get($idcategory){
-	$sql = new Sql();
+
+	public function get($idcategory)
+	{
+
+		$sql = new Sql();
 
 		$results = $sql->select("SELECT * FROM tb_categories WHERE idcategory = :idcategory", [
 			':idcategory'=>$idcategory
 		]);
 
 		$this->setData($results[0]);
-}
-public function delete()
+
+	}
+
+	public function delete()
 	{
 
 		$sql = new Sql();
@@ -101,6 +109,34 @@ public function delete()
 
 	}
 
+	public function getProductsPage($page = 1, $itemsPerPage = 8)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_products a
+			INNER JOIN tb_productscategories b ON a.idproduct = b.idproduct
+			INNER JOIN tb_categories c ON c.idcategory = b.idcategory
+			WHERE c.idcategory = :idcategory
+			LIMIT $start, $itemsPerPage;
+		", [
+			':idcategory'=>$this->getidcategory()
+		]);
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>Product::checkList($results),
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
 	public function addProduct(Product $product)
 	{
 
@@ -124,7 +160,8 @@ public function delete()
 		]);
 
 	}
-	public function getProductsPage($page = 1, $itemsPerPage = 5)
+			
+	public static function getPage($page = 1, $itemsPerPage = 10)
 	{
 
 		$start = ($page - 1) * $itemsPerPage;
@@ -133,19 +170,42 @@ public function delete()
 
 		$results = $sql->select("
 			SELECT SQL_CALC_FOUND_ROWS *
-			FROM tb_products a
-			INNER JOIN tb_productscategories b ON a.idproduct = b.idproduct
-			INNER JOIN tb_categories c ON c.idcategory = b.idcategory
-			WHERE c.idcategory = :idcategory
+			FROM tb_categories 
+			ORDER BY descategory
+			LIMIT $start, $itemsPerPage;
+		");
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
+	public static function getPageSearch($search, $page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_categories 
+			WHERE descategory LIKE :search
+			ORDER BY descategory
 			LIMIT $start, $itemsPerPage;
 		", [
-			':idcategory'=>$this->getidcategory()
+			':search'=>'%'.$search.'%'
 		]);
 
 		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
 
 		return [
-			'data'=>Product::checkList($results),
+			'data'=>$results,
 			'total'=>(int)$resultTotal[0]["nrtotal"],
 			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
 		];
